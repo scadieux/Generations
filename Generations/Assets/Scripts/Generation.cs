@@ -35,7 +35,14 @@ public class Generation : MonoBehaviour
 	
 	// Update is called once per frame
 	void Update () {
-		if(genCamera.ShownRatio == 0.0f && genCamera.FlaggedForDeath)
+		if (genCamera == null)
+		{	
+			Logger.Warn("FRANK FAIT DU CODE PAS PROPRE!!!");
+		
+			return;
+			}
+		
+			if(genCamera.ShownRatio == 0.0f && genCamera.FlaggedForDeath)
 		{
 			GenerationManager.Instance.PopGeneration();
 			this.gameObject.BroadcastMessage("Unspawn");
