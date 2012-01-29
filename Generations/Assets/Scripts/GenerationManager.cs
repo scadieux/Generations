@@ -99,7 +99,7 @@ public class GenerationManager
 			IsTransitioning = true;
 		}
 		
-		while (messages.Peek() != null)
+		while (messages.Count != 0)
 		{
 			messages.Dequeue().Broadcast(gen.gameObject);
 		}
