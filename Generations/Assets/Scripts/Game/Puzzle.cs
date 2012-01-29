@@ -12,7 +12,7 @@ public class Puzzle : MonoBehaviour
 		 new Vector3(0.0f, 100.0f, 0.0f),
 		 new Vector3(0.0f, 0.0f, 0.0f),
 		 new Vector3(0.0f, -100.0f, 0.0f),
-		new Vector3(0.0f, -200.0f, 0.0f),
+		 new Vector3(0.0f, -200.0f, 0.0f),
 	};
 
 	public void StartPuzzle(Generation generation)
