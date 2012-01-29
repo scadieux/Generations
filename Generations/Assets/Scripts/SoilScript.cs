@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class SoilScript : MonoBehaviour
 {
 	public int soilId;
-	private SoilMessage.SoilState state = SoilMessage.SoilState.Blank;
+	public SoilMessage.SoilState state = SoilMessage.SoilState.Blank;
 	public PackedSprite animations;
 	public GameObject seedPrefab;
 	public GameObject trunkColliderPrefab;
@@ -41,7 +41,11 @@ public class SoilScript : MonoBehaviour
 	
 	private IEnumerator BigBerthaRoutine(SoilMessage message)
 	{
-		if (state == SoilMessage.SoilState.Blank)
+		if (message.state == SoilMessage.SoilState.Blank)
+		{
+			Unspawn();
+		}
+		else if (state == SoilMessage.SoilState.Blank)
 		{
 			if (message.state == SoilMessage.SoilState.LogAndTrunk)
 			{
@@ -273,6 +277,8 @@ public class SoilScript : MonoBehaviour
 		{
 			Logger.Error("Unsupported transition : {0} -> {1}", state, message.state);
 		}
+		
+		state = message.state;
 	}
 	
 	private void Unspawn()
