@@ -39,10 +39,8 @@ function Update () {
 	directionVector = (camToCharacterSpace * directionVector);
 	
 	// Apply the direction to the CharacterMotor
-	var controller : CharacterController = GetComponent(CharacterController);
-	if (controller.isGrounded)
-	{motor.inputMoveDirection = directionVector;
-	motor.inputJump = Input.GetButton("Jump");}
+	motor.inputMoveDirection = directionVector;
+	motor.inputJump = Input.GetButton("Jump");
 	
 	// Set rotation to the move direction	
 	if (autoRotate && directionVector.sqrMagnitude > 0.01) {
@@ -54,14 +52,6 @@ function Update () {
 		newForward = ProjectOntoPlane(newForward, transform.up);
 		transform.rotation = Quaternion.LookRotation(newForward, transform.up);
 	}
-}
-
-function OnCollisionEnter  (col : Collision) {
-	Debug.Log("AH BEN TABARNACK!");
-}
-
-function OnTriggerEnter  (col : Collider) {
-	Debug.Log("AH BEN CALISSE!!!!!");
 }
 
 function ProjectOntoPlane (v : Vector3, normal : Vector3) {
