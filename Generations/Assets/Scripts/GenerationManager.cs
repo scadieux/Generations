@@ -38,11 +38,12 @@ public class GenerationManager
 	
 	public void PlantSeed(int soilId)
 	{
-		for (int i = 0; i < 3; ++i)
+		int soilCounter = 1;
+		for (int i = MAX_GENERATIONS - 1; i >= 0; --i)
 		{
 			SoilMessage m = new SoilMessage();
 			m.id = soilId;
-			m.state = (SoilMessage.SoilState) (i + 1);
+			m.state = (SoilMessage.SoilState) soilCounter++;
 			m.playAnims = true;
 			m.Broadcast(genList[i].gameObject);
 		}
@@ -54,7 +55,7 @@ public class GenerationManager
 		messages.Enqueue(m2);
 	}
 	
-	public void CutTree(int soilId, SoilMessage.SoilState currentState, float angle)
+	public void CutTree(int soilId, SoilMessage.SoilState currentState)
 	{
 		if (currentState == SoilMessage.SoilState.BabyTree)
 		{
@@ -64,7 +65,7 @@ public class GenerationManager
 			m.playAnims = true;
 			m.Broadcast(genList[0].gameObject);
 			m.Broadcast(genList[1].gameObject);
-			m.Broadcast(genList[2].gameObject);
+			m.Broadcast(genList[2].gameObject); // HMMM --- (00--)
 		}
 		else if (currentState == SoilMessage.SoilState.AdultTree || currentState == SoilMessage.SoilState.OldTree)
 		{
@@ -73,7 +74,6 @@ public class GenerationManager
 			m.state = SoilMessage.SoilState.LogAndTrunk;
 			m.Broadcast(genList[0].gameObject);
 			m.Broadcast(genList[1].gameObject);
-			m.trunkAngle = angle;
 			m.playAnims = true;
 		}
 	}
@@ -111,6 +111,7 @@ public class GenerationManager
 	{
 		genList.RemoveAt(genList.Count - 1);
 		genList[genList.Count - 1].IsPlayable = true;
+		genList[genList.Count - 1].BroadcastMessage("Spawn");
 		dirty = true;
 	}
 	

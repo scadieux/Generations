@@ -48,6 +48,8 @@ public class Generation : MonoBehaviour
 			this.gameObject.BroadcastMessage("Unspawn");
 			
 			Destroy(gameObject);
+			
+			
 		}
 	}
 }

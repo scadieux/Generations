@@ -3,11 +3,17 @@ using System.Collections;
 
 public class SpawnPoint : MonoBehaviour {
 	public GameObject PlayerPrefab;
+	private GameObject playerInstance;
 	
 	void Spawn()
 	{
-		GameObject go = Instantiate(PlayerPrefab, transform.position, Quaternion.identity) as GameObject;
-		StartCoroutine(SetParentRountine(go));
+		playerInstance = Instantiate(PlayerPrefab, transform.position, Quaternion.identity) as GameObject;
+		StartCoroutine(SetParentRountine(playerInstance));
+	}
+	
+	void Unspawn()
+	{
+		Destroy(playerInstance.gameObject);
 	}
 	
 	IEnumerator SetParentRountine(GameObject go) // WTF HACK
