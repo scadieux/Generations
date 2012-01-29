@@ -7,6 +7,7 @@ public class SoilScript : MonoBehaviour
 	public int soilId;
 	private SoilMessage.SoilState state = SoilMessage.SoilState.Blank;
 	public PackedSprite animations;
+	public GameObject seedPrefab;
 	public GameObject trunkColliderPrefab;
 	public GameObject logColliderPrefab;
 	public GameObject babyTreeColliderPrefab;
@@ -27,6 +28,7 @@ public class SoilScript : MonoBehaviour
 	{
 		Gizmos.DrawLine(transform.position + trunkPivot, transform.position + trunkPivot + new Vector3(Mathf.Cos(trunkAngle * Mathf.Deg2Rad), Mathf.Sin(trunkAngle * Mathf.Deg2Rad), trunkPivot.z));
 		Gizmos.DrawWireCube(transform.position + logSpawnPoint, Vector3.one * 0.5f);
+		Gizmos.DrawWireCube(transform.position, collider.bounds.size);
 	}
 		
 	public void OnSoilMessage(SoilMessage message)
@@ -113,6 +115,14 @@ public class SoilScript : MonoBehaviour
 				animations.PlayAnim("BlankToOldTree");
 				while (animations.IsAnimating())
 						yield return new WaitForEndOfFrame();
+			}
+			else if (message.state == SoilMessage.SoilState.Seed)
+			{
+				SpawnSeed();
+			}
+			else
+			{
+				Logger.Error("Unsupported transition : {0} -> {1}", state, message.state);
 			}
 		}
 		else if (state == SoilMessage.SoilState.BabyTree)
@@ -275,32 +285,57 @@ public class SoilScript : MonoBehaviour
 	private void SpawnLog()
 	{
 		Unspawn();
-		spawns.Add(Instantiate(logColliderPrefab, logSpawnPoint, Quaternion.identity) as GameObject);
+		AddGo(Instantiate(logColliderPrefab, transform.position + logSpawnPoint, Quaternion.identity) as GameObject);
 	}
 	
 	private void SpawnTrunk()
 	{
 		Unspawn();
-		GameObject go = Instantiate(trunkColliderPrefab, logSpawnPoint, Quaternion.identity) as GameObject;
+		GameObject go = Instantiate(trunkColliderPrefab, transform.position + logSpawnPoint, Quaternion.identity) as GameObject;
 		go.transform.LookAt(new Vector3(Mathf.Cos(trunkAngle * Mathf.Deg2Rad), Mathf.Sin(trunkAngle * Mathf.Deg2Rad), trunkPivot.z) * 10);
-		spawns.Add(go);
+		AddGo(go);
 	}
 	
 	private void SpawnBabyTree()
 	{
 		Unspawn();
-		spawns.Add(Instantiate(babyTreeColliderPrefab, logSpawnPoint, Quaternion.identity) as GameObject);
+		AddGo(Instantiate(babyTreeColliderPrefab, transform.position + logSpawnPoint, Quaternion.identity) as GameObject);
 	}
 	
 	private void SpawnAdultTree()
 	{
 		Unspawn();
-		spawns.Add(Instantiate(adultTreeColliderPrefab, logSpawnPoint, Quaternion.identity) as GameObject);
+		AddGo(Instantiate(adultTreeColliderPrefab, transform.position + logSpawnPoint, Quaternion.identity) as GameObject);
 	}
 	
 	private void SpawnOldTree()
 	{
 		Unspawn();
-		spawns.Add(Instantiate(oldTreeColliderPrefab, logSpawnPoint, Quaternion.identity) as GameObject);
+		AddGo(Instantiate(oldTreeColliderPrefab, transform.position + logSpawnPoint, Quaternion.identity) as GameObject);
+	}
+	
+	private void SpawnSeed()
+	{
+		Unspawn();
+		AddGo(Instantiate(seedPrefab, transform.position + logSpawnPoint, Quaternion.identity) as GameObject);
+	}
+	
+	
+	private void AddGo(GameObject go)
+	{
+		StartCoroutine(SetParentRountine(go));
+		spawns.Add(go);
+	}
+	
+	IEnumerator SetParentRountine(GameObject go) // WTF HACK
+	{
+		yield return new WaitForEndOfFrame();
+		
+		Vector3 localScale = go.transform.localScale; 
+		Generation gen = ComponentFinder.FindComponent<Generation>(transform, ComponentFinder.Direction.Upward);
+		go.transform.parent = gen.transform;
+		localScale.x /= gen.transform.localScale.x;
+		localScale.y /= gen.transform.localScale.y;
+		go.transform.localScale = localScale;
 	}
 }

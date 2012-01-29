@@ -38,11 +38,12 @@ public class GenerationManager
 	
 	public void PlantSeed(int soilId)
 	{
-		for (int i = 0; i < 3; ++i)
+		int soilCounter = 1;
+		for (int i = MAX_GENERATIONS - 1; i >= 0; --i)
 		{
 			SoilMessage m = new SoilMessage();
 			m.id = soilId;
-			m.state = (SoilMessage.SoilState) (i + 1);
+			m.state = (SoilMessage.SoilState) soilCounter++;
 			m.playAnims = true;
 			m.Broadcast(genList[i].gameObject);
 		}
