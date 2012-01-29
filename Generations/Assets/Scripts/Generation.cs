@@ -24,12 +24,13 @@ public class Generation : MonoBehaviour
 	void SetupBackground()
 	{
 		Assert.Test(background);
-		background.PlayAnim(order % background.animations.Length);
+		int sinWave = (int)Mathf.Sin(order * Mathf.PI / 2.0f - Mathf.PI / 2.0f) + 1;
+		background.PlayAnim(sinWave);
 		
 		Vector3 localScale = transform.localScale;
 		localScale.x /= background.width / (Screen.width * background.worldUnitsPerScreenPixel);
 		localScale.y /= background.height / (Screen.height / 3 * background.worldUnitsPerScreenPixel);
-		transform.localScale = localScale;
+		transform.localScale = localScale * 1.01f;
 	}
 	
 	// Update is called once per frame

@@ -66,5 +66,7 @@ public class GenerationCamera : MonoBehaviour {
 	{
 		// Will disable shownration in the start() call
 		ShownRatioEnabled = false;
+		PlayableShowRatio =  1.0f;
+		ShownRatio = 1.0f;
 	}
 }
