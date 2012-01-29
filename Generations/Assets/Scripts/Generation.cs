@@ -21,6 +21,8 @@ public class Generation : MonoBehaviour {
 		if(genCamera.ShownRatio == 0.0f && genCamera.FlaggedForDeath)
 		{
 			GenerationManager.Instance.PopGeneration();
+			this.gameObject.BroadcastMessage("Unspawn");
+			
 			Destroy(gameObject);
 		}
 	}

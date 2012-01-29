@@ -12,6 +12,8 @@ public class GenerationManager
 	private List<float> viewportScaleY;
 	private bool dirty;
 	
+	public bool IsTransitioning { get;  private set; }
+	
 	public Texture2D BorderTexture
 	{
 		get; set;
@@ -21,6 +23,7 @@ public class GenerationManager
 	{
 		genList = new List<Generation>();
 		viewportScaleY = new List<float>();
+		IsTransitioning = false;
 	}
 	
 	public static GenerationManager Instance
@@ -39,7 +42,18 @@ public class GenerationManager
 			gen.IsPlayable = true;
 		}
 		
+		if(genList.Count < MAX_GENERATIONS)
+		{
+			gen.genCamera.SkipTransition();
+		}
+		
 		genList.Insert(0, gen);
+		
+		if(genList.Count > MAX_GENERATIONS)
+		{
+			genList[genList.Count - 1].genCamera.FlaggedForDeath = true;
+			IsTransitioning = true;
+		}
 		
 		dirty = true;		
 	}
@@ -56,7 +70,7 @@ public class GenerationManager
 		
 		if(dirty)
 		{
-			//dirty = false;
+			dirty = false;
 			
 			float yViewportValueIncrement = 1.0f / (float)genList.Count;
 			
@@ -133,10 +147,7 @@ public class GenerationManager
 				yViewportYOffset += viewportScaleFactors[i];
 			}
 			
-			if(genList.Count > MAX_GENERATIONS)
-			{
-				genList[genList.Count - 1].genCamera.FlaggedForDeath = true;
-			}
+			IsTransitioning = dirty;
 		}
 	}
 	
