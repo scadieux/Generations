@@ -9,10 +9,6 @@ private var introOver : boolean = false;
 
 function Start () {
 
-guiTexture.texture = introBlack;
-
-yield WaitForSeconds(1);
-
 guiTexture.texture = intro;
 
 yield WaitForSeconds(delay);
