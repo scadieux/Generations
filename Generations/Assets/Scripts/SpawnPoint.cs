@@ -6,6 +6,18 @@ public class SpawnPoint : MonoBehaviour {
 	
 	void Spawn()
 	{
-		Instantiate(PlayerPrefab, transform.position, Quaternion.identity);
+		GameObject go = Instantiate(PlayerPrefab, transform.position, Quaternion.identity) as GameObject;
+		StartCoroutine(SetParentRountine(go));
+	}
+	
+	IEnumerator SetParentRountine(GameObject go) // WTF HACK
+	{
+		yield return new WaitForEndOfFrame();
+		Vector3 localScale = go.transform.localScale;
+		go.transform.parent = transform.parent;
+		localScale.x /= transform.parent.localScale.x;
+		localScale.y /= transform.parent.localScale.y;
+		go.transform.localScale = localScale;
+		go.collider.transform.localScale = localScale;
 	}
 }
