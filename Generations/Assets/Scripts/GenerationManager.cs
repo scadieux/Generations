@@ -54,7 +54,7 @@ public class GenerationManager
 		messages.Enqueue(m2);
 	}
 	
-	public void CutTree(int soilId, SoilMessage.SoilState currentState, float angle)
+	public void CutTree(int soilId, SoilMessage.SoilState currentState)
 	{
 		if (currentState == SoilMessage.SoilState.BabyTree)
 		{
@@ -64,7 +64,7 @@ public class GenerationManager
 			m.playAnims = true;
 			m.Broadcast(genList[0].gameObject);
 			m.Broadcast(genList[1].gameObject);
-			m.Broadcast(genList[2].gameObject);
+			m.Broadcast(genList[2].gameObject); // HMMM --- (00--)
 		}
 		else if (currentState == SoilMessage.SoilState.AdultTree || currentState == SoilMessage.SoilState.OldTree)
 		{
@@ -73,7 +73,6 @@ public class GenerationManager
 			m.state = SoilMessage.SoilState.LogAndTrunk;
 			m.Broadcast(genList[0].gameObject);
 			m.Broadcast(genList[1].gameObject);
-			m.trunkAngle = angle;
 			m.playAnims = true;
 		}
 	}

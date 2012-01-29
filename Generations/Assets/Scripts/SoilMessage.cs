@@ -17,5 +17,4 @@ public class SoilMessage : Message
 	public int id;
 	public SoilState state;
 	public bool playAnims;
-	public float trunkAngle;
 }
