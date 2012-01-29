@@ -2,10 +2,10 @@ using UnityEngine;
 using System.Collections;
 
 public class GenerationCamera : MonoBehaviour {
-	public int order;
 	public bool ShownRatioEnabled = true;
 	public float ShownRatioIncrease; //PerSeconds
 	public float PlayableShownRatioIncrease; //PerSeconds
+	public float OrthographicSize;
 	
 	public float ShownRatio 
 	{
@@ -37,7 +37,7 @@ public class GenerationCamera : MonoBehaviour {
 		FlaggedForDeath = false;
 		PlayableShowRatio = ShownRatioEnabled ? 0.0f : 1.0f;
 		ShownRatio = ShownRatioEnabled ? 0.0f : 1.0f;
-		GenerationManager.Instance.PushGenerationCamera(this);
+		camera.backgroundColor = new Color(Random.value, Random.value, Random.value);
 	}
 	
 	// Update is called once per frame
@@ -56,12 +56,7 @@ public class GenerationCamera : MonoBehaviour {
 		}
 		else
 		{
-			ShownRatio = ShownRatio - ShownRatioIncrease * Time.deltaTime;
-			if(ShownRatio < 0.0f)
-			{
-				GenerationManager.Instance.PopGenerationCamera();
-				Destroy(this.gameObject);
-			}
+			ShownRatio = Mathf.Max(ShownRatio - ShownRatioIncrease * Time.deltaTime, 0.0f);
 		}
 	}
 }

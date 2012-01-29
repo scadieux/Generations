@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class GenerationManager
 {
-	const int MAX_GENERATIONS = 3;
+	public const int MAX_GENERATIONS = 3;
 	const float PLAYABLE_GENERATION_RATIO = 1.2f;
 	private static readonly GenerationManager instance = new GenerationManager();
 	
-	private List<GenerationCamera> genCamList;
+	private List<Generation> genList;
 	private List<float> viewportScaleY;
 	private bool dirty;
 	
@@ -19,7 +19,7 @@ public class GenerationManager
 	
 	private GenerationManager() 
 	{
-		genCamList = new List<GenerationCamera>();
+		genList = new List<Generation>();
 		viewportScaleY = new List<float>();
 	}
 	
@@ -31,19 +31,23 @@ public class GenerationManager
 		}
 	}
 	
-	public void PushGenerationCamera(GenerationCamera cam)
+	public void PushGeneration(Generation gen)
 	{
-		if(genCamList.Count == 0)
+		if(genList.Count == 0)
 		{
-			cam.IsPlayableCamera = true;
+			gen.genCamera.IsPlayableCamera = true;
+			gen.IsPlayable = true;
 		}
-		genCamList.Add(cam);
+		
+		genList.Insert(0, gen);
+		
 		dirty = true;		
 	}
 	
-	public void PopGenerationCamera()
+	public void PopGeneration()
 	{
-		genCamList.RemoveAt(0);
+		genList.RemoveAt(genList.Count - 1);
+		genList[genList.Count - 1].IsPlayable = true;
 		dirty = true;
 	}
 	
@@ -54,83 +58,84 @@ public class GenerationManager
 		{
 			//dirty = false;
 			
-			float yViewportValueIncrement = 1.0f / (float)genCamList.Count;
+			float yViewportValueIncrement = 1.0f / (float)genList.Count;
 			
+			List<float> viewportScaleFactors = new List<float>(new float[genList.Count]);
 			viewportScaleY.Clear();
-			viewportScaleY.InsertRange(0, new float[genCamList.Count]);
+			
 			
 			// Initialize
-			for(int i = 0; i != genCamList.Count; ++i)
+			for(int i = 0; i != genList.Count; ++i)
 			{
-				viewportScaleY[i] = yViewportValueIncrement;
+				viewportScaleFactors[i] = yViewportValueIncrement;
             }
 			
 			// Adapt to resizable viewport
-			for(int i = 0; i != genCamList.Count; ++i)
+			for(int i = 0; i != genList.Count; ++i)
 			{
-				if(genCamList[i].ShownRatio < 1.0f)
+				if(genList[i].genCamera.ShownRatio < 1.0f)
 				{
 					dirty = true; // Have to re-update
-					float inverseRation = yViewportValueIncrement * (1.0f - genCamList[i].ShownRatio);
+					float inverseRation = yViewportValueIncrement * (1.0f - genList[i].genCamera.ShownRatio);
 					
-					inverseRation /= (float)(genCamList.Count - 1);
+					inverseRation /= (float)(genList.Count - 1);
 					
-					for(int j = 0; j != genCamList.Count; ++j)
+					for(int j = 0; j != genList.Count; ++j)
 					{
 						if(i == j)
 						{
-							viewportScaleY[j] *= genCamList[i].ShownRatio;
+							viewportScaleFactors[j] *= genList[i].genCamera.ShownRatio;
 						}
 						else
 						{
-							viewportScaleY[j] += inverseRation;
+							viewportScaleFactors[j] += inverseRation;
 						}
 					}
 				}
             }
 			
 			// Adapt to playable viewport is bigger
-			float viewportRatioIncrement = 0.0f;
-			for(int j = 0; j != genCamList.Count; ++j)
+			/*float viewportRatioIncrement = 0.0f;
+			for(int j = 0; j != genList.Count; ++j)
 			{
 				viewportRatioIncrement = 0.0f;
-				for(int i = j; i != genCamList.Count; ++i)
+				for(int i = j; i != genList.Count; ++i)
 				{
-					if(genCamList[i].IsPlayableCamera){
-						viewportRatioIncrement = (float)(viewportScaleY[i] * PLAYABLE_GENERATION_RATIO) - viewportScaleY[i];
-						viewportRatioIncrement *= genCamList[i].PlayableShowRatio;
-						viewportScaleY[i] += viewportRatioIncrement;
+					if(genList[j].genCamera.IsPlayableCamera){
+						viewportRatioIncrement = (float)(viewportScaleFactors[i] * PLAYABLE_GENERATION_RATIO) - viewportScaleFactors[i];
+						viewportRatioIncrement *= genList[i].genCamera.PlayableShowRatio;
+						viewportScaleFactors[i] += viewportRatioIncrement;
 						break;
 					}
 				}
-				if(genCamList.Count > 1)
+				if(genList.Count > 1)
 				{
-					for(int i = 0; i != genCamList.Count; ++i)
+					for(int i = 0; i != genList.Count; ++i)
 					{
 						if(i != j)
 						{
-							viewportScaleY[i] -= viewportRatioIncrement / (float)(genCamList.Count - 1);
+							viewportScaleFactors[i] -= viewportRatioIncrement / (float)(genList.Count - 1);
 						}
 					}
 				}
-			}
-
+			}*/
 			
 			// Set actual value on camera
-			float yViewportYOffset = 1.0f;
-			for(int i = 0; i != genCamList.Count; ++i)
+			float yViewportYOffset = 0.0f;
+			viewportScaleY.InsertRange(0, viewportScaleFactors);
+			for(int i = 0; i != genList.Count; ++i)
 			{
-				GenerationCamera cam = genCamList[i];
-				Rect rect = new Rect(cam.camera.rect.x, yViewportYOffset - viewportScaleY[i], cam.camera.rect.width, viewportScaleY[i]);
+				GenerationCamera cam = genList[i].genCamera;
+				Rect rect = new Rect(cam.camera.rect.x, yViewportYOffset, cam.camera.rect.width, viewportScaleFactors[i]);
+				cam.camera.orthographicSize = cam.OrthographicSize * viewportScaleY[i];
 				cam.camera.rect = rect;
 				
-				yViewportYOffset -= viewportScaleY[i];
+				yViewportYOffset += viewportScaleFactors[i];
 			}
 			
-			if(genCamList.Count > MAX_GENERATIONS)
+			if(genList.Count > MAX_GENERATIONS)
 			{
-				genCamList[0].FlaggedForDeath = true;
-				genCamList[1].IsPlayableCamera = true;
+				genList[genList.Count - 1].genCamera.FlaggedForDeath = true;
 			}
 		}
 	}
@@ -138,10 +143,11 @@ public class GenerationManager
 	public void OnGUI()
 	{
 		float totalY = 0;
-		for(int i = 0; i != viewportScaleY.Count - 1; ++i)
+		
+		for(int i = 0; i < viewportScaleY.Count - 1; ++i)
 		{
 			totalY += viewportScaleY[i];
-			GUI.DrawTexture(new Rect (0, totalY * Screen.height - (BorderTexture.height / 2.0f) , Screen.width, BorderTexture.height), BorderTexture);
+			GUI.DrawTexture(new Rect (0,  (1.0f - totalY) * Screen.height - (BorderTexture.height / 2.0f) , Screen.width, BorderTexture.height), BorderTexture);
 		}
 	}
 }
