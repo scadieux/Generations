@@ -110,6 +110,7 @@ public class GenerationManager
 	{
 		genList.RemoveAt(genList.Count - 1);
 		genList[genList.Count - 1].IsPlayable = true;
+		genList[genList.Count - 1].BroadcastMessage("Spawn");
 		dirty = true;
 	}
 	
