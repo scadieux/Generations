@@ -13,7 +13,8 @@ public class PlayerScript : MonoBehaviour {
 	bool Planting = false;
 	
 	bool JustPicking = false;
-	bool WasPicking = false;
+	bool Picking = false;
+	
 	bool WasIdle = true;
 	
 	bool IsAnimationLocked = false;
@@ -31,16 +32,13 @@ public class PlayerScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		WasPicking = JustPicking;
-		
-		JustPlanting = Input.GetButtonDown("PlantSeed");
 		JustJumped = GetComponent<CharacterController>().isGrounded && Input.GetButtonDown("Jump");
 		
 		JustLanded = !WasGrounded && GetComponent<CharacterController>().isGrounded;
 		
 		bool ActionOnce = JustPlanting || JustPicking || JustJumped;
 		
-		if(Input.GetAxis("Horizontal") != 0.0f && !ActionOnce && !IsJumping && !Planting)
+		if(Input.GetAxis("Horizontal") != 0.0f && !ActionOnce && !IsJumping && !Planting && !Picking)
 		{
 			if(Mathf.Sign(lastHorDir) != Mathf.Sign(Input.GetAxis("Horizontal")))
 			{
@@ -60,7 +58,7 @@ public class PlayerScript : MonoBehaviour {
 			WasIdle = false;
 			PlayAnimation("Jump");
 		}
-		else if(!IsJumping && !ActionOnce && !Planting && !WasIdle)
+		else if(!IsJumping && !ActionOnce && !Planting && !WasIdle && !Picking)
 		{
 			PlayAnimation("Idle");
 			IsRunning = false;
@@ -85,10 +83,19 @@ public class PlayerScript : MonoBehaviour {
 			}
 			WasIdle = false;
 		}
-		else if(JustPicking)
+		else if(JustPicking || Picking)
 		{
-			if(!JustPicking) PlayAnimation("Pickup");
-			JustPicking = sprites.IsAnimating();
+			if(!Picking)
+			{
+				PlayAnimation("Pickup");
+				Picking = true;
+				JustPicking = false;
+			}
+			else
+			{
+				Picking = sprites.IsAnimating();
+			}
+			WasIdle = false;
 		}
 		
 		if(IsAnimationLocked != WasAnimationLocked)
@@ -108,9 +115,18 @@ public class PlayerScript : MonoBehaviour {
 	void OnTriggerStay(Collider collision)
 	{
 		SoilScript soil = collision.GetComponentInChildren<SoilScript>();
-		if(soil != null && soil.enabled && Input.GetButtonDown("PlantSeed"))
+		if(soil != null && Input.GetButtonDown("PlantSeed"))
 		{
-			GenerationManager.Instance.PlantSeed(soil.soilId);
+			if(soil.state == SoilMessage.SoilState.Blank)
+			{
+				GenerationManager.Instance.PlantSeed(soil.soilId);
+				JustPlanting = true;
+			}
+			else if(soil.state == SoilMessage.SoilState.Seed)
+			{
+				GenerationManager.Instance.UnPlantSeed(soil.soilId);
+				JustPicking = true;
+			}
 		}
 	}
 }

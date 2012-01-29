@@ -55,6 +55,18 @@ public class GenerationManager
 		messages.Enqueue(m2);
 	}
 	
+	public void UnPlantSeed(int soilId)
+	{
+		for (int i = MAX_GENERATIONS - 1; i >= 0; --i)
+		{
+			SoilMessage m = new SoilMessage();
+			m.id = soilId;
+			m.state = (SoilMessage.SoilState.Blank);
+			m.playAnims = true;
+			m.Broadcast(genList[i].gameObject);
+		}
+	}
+	
 	public void CutTree(int soilId, SoilMessage.SoilState currentState)
 	{
 		if (currentState == SoilMessage.SoilState.BabyTree)
