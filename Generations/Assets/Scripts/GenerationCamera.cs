@@ -38,6 +38,8 @@ public class GenerationCamera : MonoBehaviour {
 		PlayableShowRatio = ShownRatioEnabled ? 0.0f : 1.0f;
 		ShownRatio = ShownRatioEnabled ? 0.0f : 1.0f;
 		camera.backgroundColor = new Color(Random.value, Random.value, Random.value);
+		
+		camera.rect = new Rect(0,0, 1,0);
 	}
 	
 	// Update is called once per frame
@@ -58,5 +60,13 @@ public class GenerationCamera : MonoBehaviour {
 		{
 			ShownRatio = Mathf.Max(ShownRatio - ShownRatioIncrease * Time.deltaTime, 0.0f);
 		}
+	}
+	
+	public void SkipTransition()
+	{
+		// Will disable shownration in the start() call
+		ShownRatioEnabled = false;
+		PlayableShowRatio =  1.0f;
+		ShownRatio = 1.0f;
 	}
 }
