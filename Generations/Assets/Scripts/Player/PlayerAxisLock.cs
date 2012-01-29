@@ -11,7 +11,7 @@ public class PlayerAxisLock : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		initialPosition = transform.parent.position;
+		initialPosition = transform.position;
 	}
 	
 	// Update is called once per frame

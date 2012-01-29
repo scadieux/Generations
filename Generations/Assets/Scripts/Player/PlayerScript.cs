@@ -14,9 +14,13 @@ public class PlayerScript : MonoBehaviour {
 	
 	bool JustPicking = false;
 	bool WasPicking = false;
+	bool WasIdle = true;
 	
 	bool IsAnimationLocked = false;
 	bool WasAnimationLocked = false;
+	float lastHorDir = 0.0f;
+	
+	bool WasGrounded = false;
 	
 	PackedSprite sprites;
 	
@@ -30,26 +34,37 @@ public class PlayerScript : MonoBehaviour {
 		WasPicking = JustPicking;
 		
 		JustPlanting = Input.GetButtonDown("PlantSeed");
+		JustJumped = GetComponent<CharacterController>().isGrounded && Input.GetButtonDown("Jump");
+		
+		JustLanded = !WasGrounded && GetComponent<CharacterController>().isGrounded;
 		
 		bool ActionOnce = JustPlanting || JustPicking || JustJumped;
 		
-		if(Input.GetAxis("Horizontal") != 0.0f && !ActionOnce && !Planting)
+		if(Input.GetAxis("Horizontal") != 0.0f && !ActionOnce && !IsJumping && !Planting)
 		{
-			transform.localScale = 
-				new Vector3(
-		            (Input.GetAxis("Horizontal") > 0 ? 1.0f : -1.0f), 1.0f, 1.0f);
+			if(Mathf.Sign(lastHorDir) != Mathf.Sign(Input.GetAxis("Horizontal")))
+			{
+				lastHorDir =Input.GetAxis("Horizontal");
+				transform.localScale = 
+					new Vector3(
+			            transform.localScale.x * -1.0f, transform.localScale.y, transform.localScale.z);
+			}
 			if(!IsRunning) PlayAnimation("Run");
 			IsRunning = true;
+			WasIdle = false;
 		}
 		else if(JustJumped)
 		{
 			IsJumping = true;
 			IsRunning = false;
+			WasIdle = false;
+			PlayAnimation("Jump");
 		}
-		else if(!IsJumping && !ActionOnce && !Planting)
+		else if(!IsJumping && !ActionOnce && !Planting && !WasIdle)
 		{
 			PlayAnimation("Idle");
 			IsRunning = false;
+			WasIdle = true;
 		}
 		else if(JustLanded && !IsAnimationLocked)
 		{
@@ -68,6 +83,7 @@ public class PlayerScript : MonoBehaviour {
 			{
 				Planting = sprites.IsAnimating();
 			}
+			WasIdle = false;
 		}
 		else if(JustPicking)
 		{
@@ -80,6 +96,8 @@ public class PlayerScript : MonoBehaviour {
 			GetComponentInChildren<PlayerAxisLock>().lockOnXAxis = IsAnimationLocked;
 			GetComponentInChildren<PlayerAxisLock>().lockOnYAxis = IsAnimationLocked;
 		}
+		
+		WasGrounded = GetComponent<CharacterController>().isGrounded;
 	}      
 	
 	public void PlayAnimation(string name)
