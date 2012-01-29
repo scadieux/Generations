@@ -18,9 +18,9 @@ public class Puzzle : MonoBehaviour
 	public void StartPuzzle(Generation generation)
 	{
 		generationPrefab = generation;
-		((Generation)Instantiate(generationPrefab,puzzleSpawnLocation[0], Quaternion.identity)).order = generationCount++;
-		((Generation)Instantiate(generationPrefab,puzzleSpawnLocation[1], Quaternion.identity)).order = generationCount++;
-		((Generation)Instantiate(generationPrefab,puzzleSpawnLocation[2], Quaternion.identity)).order = generationCount++;
+		((Generation)Instantiate(generationPrefab,puzzleSpawnLocation[genIndex++], Quaternion.identity)).order = generationCount++;
+		((Generation)Instantiate(generationPrefab,puzzleSpawnLocation[genIndex++], Quaternion.identity)).order = generationCount++;
+		((Generation)Instantiate(generationPrefab,puzzleSpawnLocation[genIndex++], Quaternion.identity)).order = generationCount++;
 	}
 	
 	void Update()
