@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class GenerationManager
 {
+	private Queue<Message> messages = new Queue<Message>();
+	
 	public const int MAX_GENERATIONS = 3;
 	const float PLAYABLE_GENERATION_RATIO = 1.2f;
 	private static readonly GenerationManager instance = new GenerationManager();
@@ -34,6 +36,48 @@ public class GenerationManager
 		}
 	}
 	
+	public void PlantSeed(int soilId)
+	{
+		for (int i = 0; i < 3; ++i)
+		{
+			SoilMessage m = new SoilMessage();
+			m.id = soilId;
+			m.state = (SoilMessage.SoilState) (i + 1);
+			m.playAnims = true;
+			m.Broadcast(genList[i].gameObject);
+		}
+		
+		SoilMessage m2 = new SoilMessage();
+		m2.id = soilId;
+		m2.state = SoilMessage.SoilState.OldTree;
+		m2.playAnims = false;
+		messages.Enqueue(m2);
+	}
+	
+	public void CutTree(int soilId, SoilMessage.SoilState currentState, float angle)
+	{
+		if (currentState == SoilMessage.SoilState.BabyTree)
+		{
+			SoilMessage m = new SoilMessage();
+			m.id = soilId;
+			m.state = SoilMessage.SoilState.Log;
+			m.playAnims = true;
+			m.Broadcast(genList[0].gameObject);
+			m.Broadcast(genList[1].gameObject);
+			m.Broadcast(genList[2].gameObject);
+		}
+		else if (currentState == SoilMessage.SoilState.AdultTree || currentState == SoilMessage.SoilState.OldTree)
+		{
+			SoilMessage m = new SoilMessage();
+			m.id = soilId;
+			m.state = SoilMessage.SoilState.LogAndTrunk;
+			m.Broadcast(genList[0].gameObject);
+			m.Broadcast(genList[1].gameObject);
+			m.trunkAngle = angle;
+			m.playAnims = true;
+		}
+	}
+	
 	public void PushGeneration(Generation gen)
 	{
 		if(genList.Count == 0)
@@ -53,6 +97,11 @@ public class GenerationManager
 		{
 			genList[genList.Count - 1].genCamera.FlaggedForDeath = true;
 			IsTransitioning = true;
+		}
+		
+		while (messages.Count != 0)
+		{
+			messages.Dequeue().Broadcast(gen.gameObject);
 		}
 		
 		dirty = true;		
