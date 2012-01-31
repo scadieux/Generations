@@ -1,0 +1,22 @@
+Direct3D:
+    Version:  Direct3D 9.0c [nvd3dum.dll 8.15.11.8688]
+    Renderer: NVIDIA GeForce G210M
+    Vendor:   NVIDIA
+    VRAM:     474 MB (via DXGI)
+    Caps:     Shader=30 DepthRT=1 NativeDepth=1 NativeShadow=1 DF16=0 DF24=0 INTZ=1 RAWZ=0 NULL=1 RESZ=0 SlowINTZ=0
+<I> Initializing (RawInput).
+<RI> Input initialized.
+desktop: 768x1366 60Hz; virtual: 768x1366 at 0,0
+Non platform assembly: data-0352AB68 (this message is harmless)
+Non platform assembly: data-035912A0 (this message is harmless)
+Non platform assembly: data-03596328 (this message is harmless)
+Non platform assembly: data-0359DDB0 (this message is harmless)
+Non platform assembly: data-035ABA10 (this message is harmless)
+Non platform assembly: data-08000048 (this message is harmless)
+Platform assembly: D:\Projet\Generations-GameJam\bin\Saplings_Data\Managed\UnityScript.Lang.dll (this message is harmless)
+Platform assembly: D:\Projet\Generations-GameJam\bin\Saplings_Data\Managed\Boo.Lang.dll (this message is harmless)
+
+Unloading 7 unused Assets to reduce memory usage. Loaded Objects now: 319.
+System memory in use: 40.4 MB.
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0 / Dirty serialized files: 0)
+Platform assembly: D:\Projet\Generations-GameJam\bin\Saplings_Data\Managed\System.dll (this message is harmless)
