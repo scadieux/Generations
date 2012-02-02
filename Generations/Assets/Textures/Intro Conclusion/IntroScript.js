@@ -35,7 +35,7 @@ if(introOver){
 	}
 	
 	if(Input.GetButtonUp("Jump")){
-       Application.LoadLevel("TestScene");
+       Application.LoadLevel("Level1");
     }
 
 
