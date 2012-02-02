@@ -35,7 +35,7 @@ if(introOver){
 	}
 	
 	if(Input.GetButtonUp("Jump")){
-       Application.LoadLevel("Level1");
+       Application.LoadLevel("PuzzlesScene");
     }
 
 
