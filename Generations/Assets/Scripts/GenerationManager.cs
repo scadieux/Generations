@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -36,23 +37,24 @@ public class GenerationManager
 		}
 	}
 	
-	public void PlantSeed(int soilId)
+	public void ChangeSoilObject(int soilId, GenerationObject seedObject)
 	{
-		int soilCounter = 1;
-		for (int i = MAX_GENERATIONS - 1; i >= 0; --i)
+		GenerationObject parentSoil = seedObject;
+		
+		SoilMessage m = new SoilMessage();
+		m.id = soilId;
+		m.soilObject = parentSoil;
+		m.Broadcast(genList[MAX_GENERATIONS - 1].gameObject);
+		
+		for (int i = MAX_GENERATIONS - 2; i >= 0; --i)
 		{
-			SoilMessage m = new SoilMessage();
+			m = new SoilMessage();
 			m.id = soilId;
-			m.state = (SoilMessage.SoilState) soilCounter++;
-			m.playAnims = true;
+			m.soilObject = parentSoil;
+			m.action = Action.INCREMENT_GENERATION;
+			m.numberOfGenerationIncrement = MAX_GENERATIONS - i - 1;
 			m.Broadcast(genList[i].gameObject);
 		}
-		
-		SoilMessage m2 = new SoilMessage();
-		m2.id = soilId;
-		m2.state = SoilMessage.SoilState.OldTree;
-		m2.playAnims = false;
-		messages.Enqueue(m2);
 	}
 	
 	public void UnPlantSeed(int soilId)
@@ -61,32 +63,8 @@ public class GenerationManager
 		{
 			SoilMessage m = new SoilMessage();
 			m.id = soilId;
-			m.state = (SoilMessage.SoilState.Blank);
-			m.playAnims = true;
+			m.soilObject = null;
 			m.Broadcast(genList[i].gameObject);
-		}
-	}
-	
-	public void CutTree(int soilId, SoilMessage.SoilState currentState)
-	{
-		if (currentState == SoilMessage.SoilState.BabyTree)
-		{
-			SoilMessage m = new SoilMessage();
-			m.id = soilId;
-			m.state = SoilMessage.SoilState.Log;
-			m.playAnims = true;
-			m.Broadcast(genList[0].gameObject);
-			m.Broadcast(genList[1].gameObject);
-			m.Broadcast(genList[2].gameObject); // HMMM --- (00--)
-		}
-		else if (currentState == SoilMessage.SoilState.AdultTree || currentState == SoilMessage.SoilState.OldTree)
-		{
-			SoilMessage m = new SoilMessage();
-			m.id = soilId;
-			m.state = SoilMessage.SoilState.LogAndTrunk;
-			m.Broadcast(genList[0].gameObject);
-			m.Broadcast(genList[1].gameObject);
-			m.playAnims = true;
 		}
 	}
 	
@@ -96,6 +74,19 @@ public class GenerationManager
 		{
 			gen.genCamera.IsPlayableCamera = true;
 			gen.IsPlayable = true;
+		}
+		else
+		{
+			SoilScript[] soils = genList[0].GetComponentsInChildren<SoilScript>();
+			
+			foreach(SoilScript soil in soils)
+			{
+				SoilMessage m = new SoilMessage();
+				m.id = soil.soilId;
+				m.soilObject = soil.SoilObject;
+				m.action = Action.INCREMENT_GENERATION;
+				m.Broadcast(gen.gameObject);
+			}
 		}
 		
 		if(genList.Count < MAX_GENERATIONS)
@@ -125,6 +116,22 @@ public class GenerationManager
 		genList[genList.Count - 1].IsPlayable = true;
 		genList[genList.Count - 1].BroadcastMessage("Spawn");
 		dirty = true;
+	}
+	
+	public void ClearGenerations()
+	{
+		foreach(Generation gen in genList)
+		{
+			foreach(SoilScript soil in gen.GetComponentsInChildren<SoilScript>())
+			{
+				soil.Unspawn();
+
+			}
+			GameObject.Destroy(gen.genCamera);
+			GameObject.Destroy(gen.gameObject);
+		}
+		
+		genList.Clear();
 	}
 	
 	public void Update()
@@ -220,7 +227,8 @@ public class GenerationManager
 		for(int i = 0; i < viewportScaleY.Count - 1; ++i)
 		{
 			totalY += viewportScaleY[i];
-			GUI.DrawTexture(new Rect (0,  (1.0f - totalY) * Screen.height - (BorderTexture.height / 2.0f) , Screen.width, BorderTexture.height), BorderTexture);
+			int posX = (Screen.width - BorderTexture.width) / 2;
+			GUI.DrawTexture(new Rect (posX,  (1.0f - totalY) * ManagersManager.Height - (BorderTexture.height / 2.0f) , BorderTexture.width, BorderTexture.height), BorderTexture);
 		}
 	}
 }

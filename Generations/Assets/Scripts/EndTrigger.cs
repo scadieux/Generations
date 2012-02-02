@@ -6,7 +6,7 @@ public class EndTrigger : MonoBehaviour {
 	
 	void OnTriggerEnter()
 	{
-		GenerationManager.Instance.OnLevelWasLoadedB();
-		Application.LoadLevel(NextLevelName);
+		GenerationManager.Instance.ClearGenerations();
+		ManagersManager.PuzzleManagerInstance.NextPuzzle();
 	}
 }

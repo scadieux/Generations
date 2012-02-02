@@ -1,20 +1,16 @@
 using UnityEngine;
 using System.Collections;
 
+public enum Action
+{
+	SET,
+	INCREMENT_GENERATION
+}
+
 public class SoilMessage : Message
 {
-	public enum SoilState
-	{
-		Blank = 0,
-		Seed,
-		BabyTree,
-		AdultTree,
-		OldTree,
-		Log,
-		LogAndTrunk
-	}
-	
 	public int id;
-	public SoilState state;
-	public bool playAnims;
+	public GenerationObject soilObject;
+	public Action action = Action.SET;
+	public int numberOfGenerationIncrement = 1;
 }

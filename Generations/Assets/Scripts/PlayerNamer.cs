@@ -9,15 +9,22 @@ public class PlayerNamer : MonoBehaviour
 
 	public SpriteText text; //SpriteText = EZ Gui > Controls > Label
 
-	public List<string> names = new List<string>();
+	public static List<string> names = new List<string>();
 	
-	private String prevName = "";
-	private string currName = "";
+	private static String prevName = "";
+	private static string currName = "";
 	
-	private System.Random randomizer = new System.Random();
+	private static System.Random randomizer = new System.Random();
 	
-	// Use this for initialization
-    void Start () {	
+	private bool namesAreLoaded = false;
+	
+//	static PlayerNamer()
+//	{
+//	}
+	
+	private void loadNames() 
+	{
+		namesAreLoaded = true;
 		TextAsset namesFile = (TextAsset)Resources.Load("male-names", typeof(TextAsset));
         StringReader reader = new StringReader(namesFile.text);
 		if ( reader == null )
@@ -31,26 +38,40 @@ public class PlayerNamer : MonoBehaviour
 				names.Add(name);
 	            name = reader.ReadLine();
 	        }
+		}
+	}
+   
+    void Spawn()
+	{
+		if (!namesAreLoaded)
+			loadNames();
+		StartCoroutine(ShowNameCoroutine());
+    }
+	
+	IEnumerator ShowNameCoroutine()
+	{
 		
+		prevName = currName;
+		
+		if (currName == "") {
 			// first generation:
 			// choose a random male name for the hero
 			int randomIndex = randomizer.Next(0, names.Count-1);
 			currName = names[randomIndex];
-			
-			// display text on screen
 			text.Text = currName;
 		}
-    }
-   
-	// Update is called once per frame
-    void Update () {
+		else {
 			// each generation after the first:
 			// choose a random male name for the hero
 			// concatenate previous generation's name, ex: "Harry, the son of William"
 			// this emphasizes the 'generations' and matches the GGJ12 theme
-			prevName = currName;
 			int randomIndex = randomizer.Next(0, names.Count-1);
 			currName = names[randomIndex];
 			text.Text = currName + ", the son of " + prevName;
-    }
+		}
+				
+		yield return new WaitForSeconds(2);
+		
+		text.Hide(true);
+	}
 }

@@ -2,8 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 public class PlayerScript : MonoBehaviour {
-	// Use this for initialization
-	
+	public static PlayerScript PlayerInstance;
 	bool IsJumping = false; // True while in the air
 	bool JustJumped = false; // True on the frame he jumped
 	bool JustLanded = false; // True on the frame he landed
@@ -14,6 +13,9 @@ public class PlayerScript : MonoBehaviour {
 	
 	bool JustPicking = false;
 	bool Picking = false;
+	
+	bool JustAxing = false;
+	bool Axing = false;
 	
 	bool WasIdle = true;
 	
@@ -28,6 +30,7 @@ public class PlayerScript : MonoBehaviour {
 	void Start ()
 	{
 		sprites = GetComponentInChildren<PackedSprite>();
+		PlayerInstance= this;
 	}
 	
 	// Update is called once per frame
@@ -36,9 +39,10 @@ public class PlayerScript : MonoBehaviour {
 		
 		JustLanded = !WasGrounded && GetComponent<CharacterController>().isGrounded;
 		
-		bool ActionOnce = JustPlanting || JustPicking || JustJumped;
+		bool ActionOnce = JustPlanting || JustPicking || JustJumped || JustAxing;
+		bool PlayerSkipWalkCycle = ActionOnce || IsJumping || Planting || Picking || Axing;
 		
-		if(Input.GetAxis("Horizontal") != 0.0f && !ActionOnce && !IsJumping && !Planting && !Picking)
+		if(Input.GetAxis("Horizontal") != 0.0f && !PlayerSkipWalkCycle)
 		{
 			if(Mathf.Sign(lastHorDir) != Mathf.Sign(Input.GetAxis("Horizontal")))
 			{
@@ -58,7 +62,7 @@ public class PlayerScript : MonoBehaviour {
 			WasIdle = false;
 			PlayAnimation("Jump");
 		}
-		else if(!IsJumping && !ActionOnce && !Planting && !WasIdle && !Picking)
+		else if(!IsJumping && !WasIdle && !PlayerSkipWalkCycle)
 		{
 			PlayAnimation("Idle");
 			IsRunning = false;
@@ -97,6 +101,20 @@ public class PlayerScript : MonoBehaviour {
 			}
 			WasIdle = false;
 		}
+		else if(JustAxing || Axing)
+		{
+			if(!Axing)
+			{
+				PlayAnimation("Axe");
+				Axing = true;
+				JustAxing = false;
+			}
+			else
+			{
+				Axing = sprites.IsAnimating();
+			}
+			WasIdle = false;
+		}
 		
 		if(IsAnimationLocked != WasAnimationLocked)
 		{
@@ -112,21 +130,38 @@ public class PlayerScript : MonoBehaviour {
 		sprites.PlayAnim(name);
 	}
 	
+	void Chop(SoilScript chopSoil)
+	{
+		Tree treeComponent = chopSoil.SoilObject.GenerationPrebabs[chopSoil.SoilObject.generationIndex].GetComponent<Tree>();
+		
+		if(treeComponent != null && treeComponent.IsChoppable)
+		{
+			JustAxing = true;
+		
+			GenerationManager.Instance.ChangeSoilObject(chopSoil.soilId, treeComponent.ChoppedPrefab);
+		}
+	}
+	
 	void OnTriggerStay(Collider collision)
 	{
 		SoilScript soil = collision.GetComponentInChildren<SoilScript>();
 		if(soil != null && Input.GetButtonDown("PlantSeed"))
 		{
-			if(soil.state == SoilMessage.SoilState.Blank)
+			if(soil.SoilObject == null)
 			{
-				GenerationManager.Instance.PlantSeed(soil.soilId);
+				GenerationManager.Instance.ChangeSoilObject(soil.soilId, soil.GenerationObjectPrefab);
 				JustPlanting = true;
 			}
-			else if(soil.state == SoilMessage.SoilState.Seed)
+			else if(soil.SoilObject.Type == GenerationObjectType.Tree && soil.SoilObject.generationIndex == 0) // We need a system so log don't get pickedup
 			{
 				GenerationManager.Instance.UnPlantSeed(soil.soilId);
 				JustPicking = true;
 			}
+		}
+		
+		if(Input.GetButtonDown("Chop"))
+		{
+			Chop(soil);
 		}
 	}
 }

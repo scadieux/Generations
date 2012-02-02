@@ -28,8 +28,8 @@ public class Generation : MonoBehaviour
 		background.PlayAnim(sinWave);
 		
 		Vector3 localScale = transform.localScale;
-		localScale.x /= background.width / (Screen.width * background.worldUnitsPerScreenPixel);
-		localScale.y /= background.height / (Screen.height / 3 * background.worldUnitsPerScreenPixel);
+		localScale.x /= background.width / (ManagersManager.Width * background.worldUnitsPerScreenPixel);
+		localScale.y /= background.height / (ManagersManager.Height / 3 * background.worldUnitsPerScreenPixel);
 		transform.localScale = localScale * 1.01f;
 	}
 	
@@ -40,9 +40,9 @@ public class Generation : MonoBehaviour
 			Logger.Warn("FRANK FAIT DU CODE PAS PROPRE!!!");
 		
 			return;
-			}
+		}
 		
-			if(genCamera.ShownRatio == 0.0f && genCamera.FlaggedForDeath)
+		if(genCamera.ShownRatio == 0.0f && genCamera.FlaggedForDeath)
 		{
 			GenerationManager.Instance.PopGeneration();
 			this.gameObject.BroadcastMessage("Unspawn");

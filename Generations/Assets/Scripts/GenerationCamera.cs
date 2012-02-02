@@ -37,7 +37,7 @@ public class GenerationCamera : MonoBehaviour {
 		FlaggedForDeath = false;
 		PlayableShowRatio = ShownRatioEnabled ? 0.0f : 1.0f;
 		ShownRatio = ShownRatioEnabled ? 0.0f : 1.0f;
-		camera.backgroundColor = new Color(Random.value, Random.value, Random.value);
+		camera.backgroundColor = Color.black;
 		
 		camera.rect = new Rect(0,0, 1,0);
 	}
