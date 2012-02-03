@@ -110,6 +110,11 @@ public class GenerationManager
 		dirty = true;		
 	}
 	
+	public Generation GetPlayableGeneration()
+	{
+		return genList[genList.Count - 1];
+	}
+	
 	public void PopGeneration()
 	{
 		genList.RemoveAt(genList.Count - 1);
